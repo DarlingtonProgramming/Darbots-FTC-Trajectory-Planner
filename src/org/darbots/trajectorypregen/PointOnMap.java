@@ -8,8 +8,16 @@ public class PointOnMap extends RobotPoint2D {
 	
 	public PointOnMap(double X, double Y, Color color) {
 		super(X, Y);
+		this.pointColor = color;
 		// TODO Auto-generated constructor stub
 	}
+	
+	public PointOnMap(RobotPoint2D oldPoint, Color color) {
+		super(oldPoint);
+		this.pointColor = color;
+	}
+	
+	
 	
 	public PointOnMap(PointOnMap oldPoint) {
 		super(oldPoint);

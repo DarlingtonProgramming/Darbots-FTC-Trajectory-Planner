@@ -21,27 +21,32 @@ public class FTCFieldPanel extends JPanel {
 	
 	private Image m_FieldImage;
 	private ArrayList<PointOnMap> m_PointsToPlot;
+	private ArrayList<OnFieldPlottable> m_OnFieldPlottables;
 	public RobotPose2D RobotPose;
 	public double robotWidth = 0, robotLength = 0;
 	
-	public FTCFieldPanel(int width, int height, Image fieldImage) {
+	public FTCFieldPanel(Image fieldImage) {
 		this.m_FieldImage = fieldImage;
-		this.setSize(width,height);
 		this.setLayout(null);
 		this.m_PointsToPlot = new ArrayList<PointOnMap>();
+		this.m_OnFieldPlottables = new ArrayList<OnFieldPlottable>();
 		this.RobotPose = null;
 	}
 	
 	public FTCFieldPanel(FTCFieldPanel oldPanel) {
-		this.setSize(oldPanel.getSize());
 		this.setLayout(null);
 		this.m_FieldImage = oldPanel.m_FieldImage;
 		this.m_PointsToPlot = new ArrayList<PointOnMap>(oldPanel.m_PointsToPlot);
+		this.m_OnFieldPlottables = new ArrayList<OnFieldPlottable>(oldPanel.m_OnFieldPlottables);
 		this.RobotPose = oldPanel.RobotPose;
 	}
 	
 	public ArrayList<PointOnMap> getPointsToPlot(){
 		return this.m_PointsToPlot;
+	}
+	
+	public ArrayList<OnFieldPlottable> getOnFieldPlottables(){
+		return this.m_OnFieldPlottables;
 	}
 	
 	@Override
@@ -59,6 +64,11 @@ public class FTCFieldPanel extends JPanel {
 				g.setColor(CONST_DEFAULT_POINT_COLOR);
 			}
 			g.fillRect(xStart, yStart, 1, 1);
+		}
+		
+		//Call On Field Plottable
+		for(OnFieldPlottable thisPlottable : this.m_OnFieldPlottables) {
+			thisPlottable.onPlot(this, g, size);
 		}
 		
 		//Plot robot position

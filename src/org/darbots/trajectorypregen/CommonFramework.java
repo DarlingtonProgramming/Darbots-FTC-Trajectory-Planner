@@ -11,8 +11,8 @@ import javax.swing.JFrame;
 public class CommonFramework extends JFrame {
 	private FTCFieldPanel m_Panel;
 	
-	protected void __setupPanel(int width, int height) {
-		this.m_Panel = new FTCFieldPanel(width, height, loadImage());
+	protected void __setupPanel() {
+		this.m_Panel = new FTCFieldPanel(loadImage());
 	}
 	
 	public FTCFieldPanel getFieldPanel() {
