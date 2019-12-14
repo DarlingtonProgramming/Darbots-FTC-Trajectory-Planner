@@ -83,6 +83,7 @@ public class NormalFrame extends CommonFramework {
 		private JFormattedTextField RobotWidthText, RobotLengthText;
 		private JPanel MousePositionPanel;
 		private JLabel MouseClickLabel;
+		private JFormattedTextField ClickXText, ClickYText;
 		private JButton MouseClickAddButton;
 		private JButton MouseClickToRobotButton;
 		private JPanel PointControlPanel;
@@ -147,13 +148,14 @@ public class NormalFrame extends CommonFramework {
 			PropertyChangeListener RobotPositionListener = new PropertyChangeListener() {
 				@Override
 				public void propertyChange(PropertyChangeEvent evt) {
+					double val = ((Number) evt.getNewValue()).doubleValue();
 					// TODO Auto-generated method stub
 					if(evt.getSource() == RobotXText) {
-						m_RobotPose.X = ((Number) evt.getNewValue()).doubleValue();
+						m_RobotPose.X = val;
 					}else if(evt.getSource() == RobotYText) {
-						m_RobotPose.Y = ((Number) evt.getNewValue()).doubleValue();
+						m_RobotPose.Y = val;
 					}else {
-						m_RobotPose.setRotationZ(((Number) evt.getNewValue()).doubleValue());
+						m_RobotPose.setRotationZ(val);
 					}
 					updateRobotPosition();
 				}
@@ -198,9 +200,26 @@ public class NormalFrame extends CommonFramework {
 			this.add(RobotDimensionPanel);
 			
 			this.MousePositionPanel = new JPanel();
-			this.MousePositionPanel.setLayout(new FlowLayout());
+			this.MousePositionPanel.setLayout(new BoxLayout(this.MousePositionPanel,BoxLayout.X_AXIS));
 			this.MousePositionPanel.setBorder(BorderFactory.createTitledBorder("MousePosition"));
 			this.MouseClickLabel = new JLabel();
+			this.MouseClickLabel.setText("Click:");
+			PropertyChangeListener ClickPointTextListener = new PropertyChangeListener() {
+				@Override
+				public void propertyChange(PropertyChangeEvent evt) {
+					// TODO Auto-generated method stub
+					double val = ((Number) evt.getNewValue()).doubleValue();
+					if(evt.getSource() == ClickXText) {
+						m_ClickedPoint.X = val;
+					}else { // if(evt.getSource() == ClickYText) {
+						m_ClickedPoint.Y = val;
+					}
+					updateMouseFieldPos();
+				}	
+			};
+			NumberFormat ClickXFormat = NumberFormat.getInstance(), ClickYFormat = NumberFormat.getInstance();
+			this.ClickXText = new JFormattedTextField(ClickXFormat);
+			this.ClickYText = new JFormattedTextField(ClickYFormat);
 			this.MouseClickAddButton = new JButton();
 			this.MouseClickAddButton.setText("Add");
 			this.MouseClickAddButton.addActionListener(new ActionListener(){
@@ -226,10 +245,16 @@ public class NormalFrame extends CommonFramework {
 				}
 				
 			});
+			
 			this.MousePositionPanel.add(this.MouseClickLabel);
+			this.MousePositionPanel.add(this.ClickXText);
+			this.MousePositionPanel.add(this.ClickYText);
 			this.MousePositionPanel.add(this.MouseClickAddButton);
 			this.MousePositionPanel.add(this.MouseClickToRobotButton);
 			this.updateMouseFieldPos();
+			
+			this.ClickXText.addPropertyChangeListener("value",ClickPointTextListener);
+			this.ClickYText.addPropertyChangeListener("value",ClickPointTextListener);
 			
 			this.add(MousePositionPanel);
 			
@@ -280,7 +305,8 @@ public class NormalFrame extends CommonFramework {
 		}
 		
 		public void updateMouseFieldPos() {
-			this.MouseClickLabel.setText("Click: " + "(" + this.m_ClickedPoint.X + "," + this.m_ClickedPoint.Y + ")");
+			this.ClickXText.setValue(this.m_ClickedPoint.X);
+			this.ClickYText.setValue(this.m_ClickedPoint.Y);
 			this.updatePointsInFieldView();
 		}
 		
