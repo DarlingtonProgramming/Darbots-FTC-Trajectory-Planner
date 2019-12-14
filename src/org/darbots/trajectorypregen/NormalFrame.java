@@ -1,12 +1,15 @@
 package org.darbots.trajectorypregen;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.LayoutManager;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
@@ -31,7 +34,7 @@ public class NormalFrame extends CommonFramework {
 	public static final Color CONST_NORMAL_POINT_COLOR = Color.BLACK;
 	public static final Color CONST_CLICK_POINT_COLOR = Color.BLUE;
 	
-	public class NormalFrameMouseListener implements MouseListener{
+	private class NormalFrameMouseListener implements MouseListener{
 		
 		@Override
 		public void mouseClicked(MouseEvent e) {
@@ -68,7 +71,7 @@ public class NormalFrame extends CommonFramework {
 		}
 		
 	}
-	public class RightInfoDisplayPanel extends JPanel{
+	private class RightInfoDisplayPanel extends JPanel{
 		private RobotPose2D m_RobotPose;
 		private double m_RobotWidth, m_RobotLength;
 		private ArrayList<RobotPoint2D> m_Points;
@@ -81,13 +84,14 @@ public class NormalFrame extends CommonFramework {
 		private JPanel MousePositionPanel;
 		private JLabel MouseClickLabel;
 		private JButton MouseClickAddButton;
+		private JButton MouseClickToRobotButton;
 		private JPanel PointControlPanel;
 		private JScrollPane PointPane;
 		private JList<RobotPoint2D> PointList;
 		private JButton PointDelButton;
 		
 		public RightInfoDisplayPanel() {
-			super();
+			this.setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));
 			this.__initializeVals();
 			this.__initializeControls();
 		}
@@ -129,8 +133,6 @@ public class NormalFrame extends CommonFramework {
 		}
 		
 		private void __initializeControls() {
-			this.setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));
-			
 			this.RobotPositionPanel = new JPanel();
 			this.RobotPositionPanel.setLayout(new BoxLayout(this.RobotPositionPanel,BoxLayout.X_AXIS));
 			this.RobotPositionPanel.setBorder(BorderFactory.createTitledBorder("Robot Position"));
@@ -168,12 +170,13 @@ public class NormalFrame extends CommonFramework {
 			
 			
 			this.RobotDimensionPanel = new JPanel();
-			this.RobotDimensionPanel.setLayout(new BoxLayout(this.RobotPositionPanel,BoxLayout.X_AXIS));
+			this.RobotDimensionPanel.setLayout(new BoxLayout(this.RobotDimensionPanel,BoxLayout.X_AXIS));
 			this.RobotDimensionPanel.setBorder(BorderFactory.createTitledBorder("Robot Dimension"));
 			
 			NumberFormat WidthFormatter = NumberFormat.getInstance(), LengthFormatter = NumberFormat.getInstance();
 			this.RobotWidthText = new JFormattedTextField(WidthFormatter);
 			this.RobotLengthText = new JFormattedTextField(LengthFormatter);
+			this.updateRobotDimension();
 			PropertyChangeListener RobotDimensionListener = new PropertyChangeListener() {
 				@Override
 				public void propertyChange(PropertyChangeEvent evt) {
@@ -210,8 +213,22 @@ public class NormalFrame extends CommonFramework {
 				}
 				
 			});
+			this.MouseClickToRobotButton = new JButton();
+			this.MouseClickToRobotButton.setText("RobotPos");
+			this.MouseClickToRobotButton.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					// TODO Auto-generated method stub
+					m_RobotPose.X = m_ClickedPoint.X;
+					m_RobotPose.Y = m_ClickedPoint.Y;
+					updateRobotPosition();
+				}
+				
+			});
 			this.MousePositionPanel.add(this.MouseClickLabel);
 			this.MousePositionPanel.add(this.MouseClickAddButton);
+			this.MousePositionPanel.add(this.MouseClickToRobotButton);
 			this.updateMouseFieldPos();
 			
 			this.add(MousePositionPanel);
@@ -220,7 +237,7 @@ public class NormalFrame extends CommonFramework {
 			this.PointControlPanel.setBorder(BorderFactory.createTitledBorder("Points"));
 			this.PointControlPanel.setLayout(new FlowLayout());
 			this.PointPane = new JScrollPane();
-			this.PointList = new JList();
+			this.PointList = new JList<RobotPoint2D>();
 			this.PointList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			this.PointPane.getViewport().add(PointList);
 			this.PointDelButton = new JButton();
@@ -241,6 +258,8 @@ public class NormalFrame extends CommonFramework {
 			this.PointControlPanel.add(this.PointPane);
 			this.PointControlPanel.add(PointDelButton);
 			
+			this.updatePoints();
+			
 			this.add(PointControlPanel);
 		}
 		
@@ -248,9 +267,8 @@ public class NormalFrame extends CommonFramework {
 			this.RobotXText.setValue(this.m_RobotPose.X);
 			this.RobotYText.setValue(this.m_RobotPose.Y);
 			this.RobotRotZText.setValue(this.m_RobotPose.getRotationZ());
-			getFieldPanel().RobotPose.X = this.m_RobotPose.X;
-			getFieldPanel().RobotPose.Y = this.m_RobotPose.Y;
-			getFieldPanel().RobotPose.setRotationZ(this.m_RobotPose.getRotationZ());
+			getFieldPanel().RobotPose = this.m_RobotPose;
+			getFieldPanel().repaint();
 		}
 		
 		public void updateRobotDimension() {
@@ -258,14 +276,20 @@ public class NormalFrame extends CommonFramework {
 			this.RobotLengthText.setValue(this.m_RobotLength);
 			getFieldPanel().robotWidth = this.m_RobotWidth;
 			getFieldPanel().robotLength = this.m_RobotLength;
+			getFieldPanel().repaint();
 		}
 		
 		public void updateMouseFieldPos() {
 			this.MouseClickLabel.setText("Click: " + "(" + this.m_ClickedPoint.X + "," + this.m_ClickedPoint.Y + ")");
+			this.updatePointsInFieldView();
 		}
 		
 		public void updatePoints() {
-			this.PointList.setListData((RobotPoint2D[]) this.m_Points.toArray());
+			RobotPoint2D[] mArr = new RobotPoint2D[this.m_Points.size()];
+			for(int i = 0; i < this.m_Points.size(); i++) {
+				mArr[i] = this.m_Points.get(i);
+			}
+			this.PointList.setListData(mArr);
 			this.updatePointsInFieldView();
 		}
 		
@@ -285,13 +309,14 @@ public class NormalFrame extends CommonFramework {
 		this.__setupPanel();
 		this.__setupRightPanel();
 		this.getFieldPanel().addMouseListener(new NormalFrameMouseListener());
-		this.setLayout(new BoxLayout(this,BoxLayout.X_AXIS));
+		this.setLayout(new FlowLayout());
 		this.setSize(Width,Height);
 		this.getContentPane().setLayout(new GridLayout(1,1));
 		this.getContentPane().add(this.getFieldPanel());
+		this.getContentPane().add(this.m_RightPanel);
 	}
 	
 	private void __setupRightPanel() {
-		this.m_RightPanel = new RightInfoDisplayPanel();
+		this.m_RightPanel = this.new RightInfoDisplayPanel();
 	}
 }

@@ -1,6 +1,8 @@
 package org.darbots.trajectorypregen;
 
 import java.awt.Color;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -18,6 +20,7 @@ public class FTCFieldPanel extends JPanel {
 	public static final Color CONST_DEFAULT_POINT_COLOR = Color.BLACK;
 	public static final Color CONST_DEFAULT_ROBOT_RECT_COLOR = Color.GRAY;
 	public static final Color CONST_DEFAULT_ROBOT_ARROW_COLOR = Color.BLUE;
+	public static final int CONST_POINT_DIAMETER = 5;
 	
 	private Image m_FieldImage;
 	private ArrayList<PointOnMap> m_PointsToPlot;
@@ -56,14 +59,12 @@ public class FTCFieldPanel extends JPanel {
 		
 		//Plot all points asked to plot on the map
 		for(PointOnMap thisPoint : this.m_PointsToPlot) {
-			double[] actualPointToPlot = transferToPanelPoint(thisPoint.X,thisPoint.Y,size);
-			int xStart = (int) actualPointToPlot[0], yStart = (int) actualPointToPlot[1];
 			if(thisPoint.pointColor != null) {
 				g.setColor(thisPoint.pointColor);
 			}else {
 				g.setColor(CONST_DEFAULT_POINT_COLOR);
 			}
-			g.fillRect(xStart, yStart, 1, 1);
+			this.drawPoint(g,size,thisPoint.X,thisPoint.Y,CONST_POINT_DIAMETER);
 		}
 		
 		//Call On Field Plottable
@@ -73,7 +74,7 @@ public class FTCFieldPanel extends JPanel {
 		
 		//Plot robot position
 		if(this.RobotPose != null) {
-			double halfLength = this.robotLength / 2.0, halfWidth = this.robotWidth;
+			double halfLength = this.robotLength / 2.0, halfWidth = this.robotWidth / 2.0;
 			RobotPoint2D robotFrontPos = new RobotPoint2D(halfLength, 0);
 			RobotPoint2D robotLFPos = new RobotPoint2D(halfLength, halfWidth);
 			RobotPoint2D robotRFPos = new RobotPoint2D(halfLength, -halfWidth);
@@ -98,14 +99,14 @@ public class FTCFieldPanel extends JPanel {
 			int[] xPolyPoints = {
 				(int) Math.round(panelLFPos[0]),
 				(int) Math.round(panelRFPos[0]),
-				(int) Math.round(panelLBPos[0]),
-				(int) Math.round(panelRBPos[0])
+				(int) Math.round(panelRBPos[0]),
+				(int) Math.round(panelLBPos[0])
 			};
 			int[] yPolyPoints = {
 					(int) Math.round(panelLFPos[1]),
 					(int) Math.round(panelRFPos[1]),
-					(int) Math.round(panelLBPos[1]),
-					(int) Math.round(panelRBPos[1])
+					(int) Math.round(panelRBPos[1]),
+					(int) Math.round(panelLBPos[1])
 			};
 			g.fillPolygon(xPolyPoints, yPolyPoints, 4);
 			
@@ -156,5 +157,12 @@ public class FTCFieldPanel extends JPanel {
 		
 		double[] result = {scaledX, scaledY};
 		return result;
+	}
+	
+	public void drawPoint(Graphics g, Dimension size, double fieldX, double fieldY, int diameter) {
+		double[] actualPointToPlot = transferToPanelPoint(fieldX,fieldY,size);
+		int xCenter = (int) Math.round(actualPointToPlot[0]), yCenter = (int) Math.round(actualPointToPlot[1]);
+		int xStart = xCenter - Math.round(diameter / 2.0f), yStart = yCenter - Math.round(diameter / 2.0f);
+		g.fillOval(xStart, yStart, diameter, diameter);
 	}
 }
