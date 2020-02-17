@@ -25,23 +25,21 @@ SOFTWARE.
 package org.darbots.darbotsftclib.libcore.calculations.dimentional_calculation;
 
 
-public class RobotVector2D {
-    public double X;
-    public double Y;
+import java.io.Serializable;
+
+public class RobotVector2D extends RobotPoint2D implements Serializable {
+    private static final long serialVersionUID = 1L;
     protected double m_RotationZ;
     public RobotVector2D(double X, double Y, double ZRotation){
-        this.X = X;
-        this.Y = Y;
+        super(X,Y);
         this.m_RotationZ = ZRotation;
     }
     public RobotVector2D(RobotPoint2D Point, double ZRotation) {
-        this.X = Point.X;
-        this.Y = Point.Y;
+       super(Point);
         this.m_RotationZ = ZRotation;
     }
     public RobotVector2D(RobotVector2D Pos2D){
-        this.X = Pos2D.X;
-        this.Y = Pos2D.Y;
+        super(Pos2D);
         this.m_RotationZ = Pos2D.m_RotationZ;
     }
     public void setValues(double X, double Y, double RotationZ){
@@ -62,16 +60,15 @@ public class RobotVector2D {
     public void offsetValues(RobotVector2D pose2D){
         this.offsetValues(pose2D.X,pose2D.Y,pose2D.getRotationZ());
     }
-    public double getDistanceToOrigin(){
-        return (Math.sqrt(Math.pow(this.X,2) + Math.pow(this.Y,2)));
-    }
+
     public double getRotationZ(){
         return this.m_RotationZ;
     }
     public void setRotationZ(double RotationZ){
         this.m_RotationZ = RotationZ;
     }
-    public RobotPoint2D toPoint2D() {
-        return new RobotPoint2D(this);
+    @Override
+    public String toString(){
+        return "[" + this.X + ", " + this.Y + "](" + this.getRotationZ() + ")";
     }
 }

@@ -86,7 +86,7 @@ public class FTCFieldPanel extends JPanel {
 			RobotPoint2D fieldRFPos = XYPlaneCalculations.getAbsolutePosition(this.RobotPose, robotRFPos);
 			RobotPoint2D fieldLBPos = XYPlaneCalculations.getAbsolutePosition(this.RobotPose, robotLBPos);
 			RobotPoint2D fieldRBPos = XYPlaneCalculations.getAbsolutePosition(this.RobotPose, robotRBPos);
-			RobotPoint2D fieldRobotPos = this.RobotPose.toPoint2D();
+			RobotPoint2D fieldRobotPos = this.RobotPose;
 			
 			double[] panelFrontPos = transferToPanelPoint(fieldFrontPos.X,fieldFrontPos.Y,size);
 			double[] panelLFPos = transferToPanelPoint(fieldLFPos.X,fieldLFPos.Y,size);

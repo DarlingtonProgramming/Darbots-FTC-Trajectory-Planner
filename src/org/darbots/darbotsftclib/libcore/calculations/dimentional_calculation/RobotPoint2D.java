@@ -1,7 +1,38 @@
 package org.darbots.darbotsftclib.libcore.calculations.dimentional_calculation;
 
-public class RobotPoint2D {
-	public double X;
+import java.io.Serializable;
+import java.util.Comparator;
+
+public class RobotPoint2D implements Serializable {
+    private static final long serialVersionUID = 1L;
+    public static class XComparator implements Comparator<RobotPoint2D>{
+        @Override
+        public int compare(RobotPoint2D o1, RobotPoint2D o2) {
+            if(o1.X > o2.X){
+                return 1;
+            }else if(o1.X == o2.X){
+                return 0;
+            }else{
+                return -1;
+            }
+            //return o1.X - o2.X;
+        }
+    }
+    public static class YComparator implements Comparator<RobotPoint2D>{
+
+        @Override
+        public int compare(RobotPoint2D o1, RobotPoint2D o2) {
+            if(o1.Y > o2.Y){
+                return 1;
+            }else if(o1.Y == o2.Y){
+                return 0;
+            }else{
+                return -1;
+            }
+            //return o1.Y - o2.Y;
+        }
+    }
+    public double X;
     public double Y;
     public RobotPoint2D(double X, double Y) {
     	this.X = X;
@@ -16,14 +47,25 @@ public class RobotPoint2D {
     	this.Y = indicator.Y;
     }
     public double distanceTo(RobotPoint2D secondPoint){
-        return Math.sqrt(Math.pow(secondPoint.X - this.X,2) + Math.pow(secondPoint.Y - this.Y,2));
+        return Math.hypot(secondPoint.X - this.X,secondPoint.Y - this.Y);
+    }
+    public double distanceToOrigin(){
+        return Math.hypot(this.X,this.Y);
     }
     public void setValues(RobotPoint2D value){
         this.X = value.X;
         this.Y = value.Y;
     }
+
+    public boolean equals(RobotPoint2D point){
+        if(this.X == point.X && this.Y == point.Y){
+            return true;
+        }else{
+            return false;
+        }
+    }
     @Override
-    public String toString() {
-		return "(" + this.X + ", " + this.Y + ")";
+    public String toString(){
+        return "[" + this.X + ", " + this.Y + "]";
     }
 }

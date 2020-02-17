@@ -25,7 +25,11 @@ SOFTWARE.
 package org.darbots.darbotsftclib.libcore.calculations.dimentional_calculation;
 
 
-public class RobotPose2D extends RobotVector2D {
+import java.io.Serializable;
+
+public class RobotPose2D extends RobotVector2D implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     public RobotPose2D(double X, double Y, double ZRotation) {
         super(X, Y, XYPlaneCalculations.normalizeDeg(ZRotation));
     }
@@ -55,5 +59,13 @@ public class RobotPose2D extends RobotVector2D {
     }
     public void setRotationZ(double RotationZ){
         this.m_RotationZ = XYPlaneCalculations.normalizeDeg(RotationZ);
+    }
+
+    public boolean equals(RobotPose2D Pose){
+        if(this.getRotationZ() == Pose.getRotationZ() && this.X == Pose.X && this.Y == Pose.Y){
+            return true;
+        }else{
+            return false;
+        }
     }
 }
